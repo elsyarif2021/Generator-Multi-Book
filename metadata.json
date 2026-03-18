@@ -1,0 +1,7 @@
+{
+  "name": "Generator Multi Book",
+  "description": "AI-powered book writing tool that generates outlines, writes chapters, and exports to DOCX.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

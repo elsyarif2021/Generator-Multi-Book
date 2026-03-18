@@ -1,0 +1,48 @@
+{
+  "entities": {
+    "Book": {
+      "title": "Book",
+      "description": "A generated book",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user ID of the owner"
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "genre": {
+          "type": "string"
+        },
+        "tone": {
+          "type": "string"
+        },
+        "targetAudience": {
+          "type": "string"
+        },
+        "chapters": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "createdAt": {
+          "type": "timestamp"
+        }
+      },
+      "required": ["uid", "title", "type", "createdAt"]
+    }
+  },
+  "firestore": {
+    "books/{bookId}": {
+      "schema": {
+        "$ref": "#/entities/Book"
+      },
+      "description": "Stores generated books"
+    }
+  }
+}
