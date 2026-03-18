@@ -13,10 +13,8 @@ const __dirname = path.dirname(__filename);
 function getAIClient() {
   let key = process.env.API_KEY || process.env.GEMINI_API_KEY;
   if (key) key = key.trim();
-  console.log('Env keys:', Object.keys(process.env).filter(k => k.includes('KEY') || k.includes('GEMINI')));
-  console.log('API Key length:', key ? key.length : 0);
   if (!key || key === 'undefined' || key === 'null') {
-    throw new Error(`GEMINI_API_KEY environment variable is missing or invalid. Value: "${key}". Please configure it to use AI features.`);
+    throw new Error(`API key is missing or invalid. Please configure it to use AI features.`);
   }
   return new GoogleGenAI({ apiKey: key });
 }

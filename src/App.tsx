@@ -41,6 +41,25 @@ export default function App() {
   const [theme, setTheme] = useState<Theme>('light');
   const [user, setUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
+  const [hasApiKey, setHasApiKey] = useState(true); // Assume true initially
+  
+  useEffect(() => {
+    const checkApiKey = async () => {
+      if (window.aistudio && window.aistudio.hasSelectedApiKey) {
+        const hasKey = await window.aistudio.hasSelectedApiKey();
+        setHasApiKey(hasKey);
+      }
+    };
+    checkApiKey();
+  }, []);
+
+  const handleSelectApiKey = async () => {
+    if (window.aistudio && window.aistudio.openSelectKey) {
+      await window.aistudio.openSelectKey();
+      // Assume success to avoid race conditions
+      setHasApiKey(true);
+    }
+  };
   
   const [params, setParams] = useState<BookParams>({
     title: '',
@@ -224,6 +243,9 @@ export default function App() {
     } catch (err: any) {
       const errMsg = err.message || "Gagal men-generate suara AI.";
       setError(errMsg);
+      if (errMsg.includes('API Key Gemini tidak valid') || errMsg.includes('API key not valid') || errMsg.includes('API key is missing')) {
+        setHasApiKey(false);
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -244,6 +266,9 @@ export default function App() {
     } catch (err: any) {
       const errMsg = err.message || 'Gagal membuat blueprint.';
       setError(errMsg);
+      if (errMsg.includes('API Key Gemini tidak valid') || errMsg.includes('API key not valid') || errMsg.includes('API key is missing')) {
+        setHasApiKey(false);
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -302,6 +327,9 @@ export default function App() {
     } catch (err: any) {
       const errMsg = err.message || `Gagal menulis Bab ${index + 1}.`;
       setError(errMsg);
+      if (errMsg.includes('API Key Gemini tidak valid') || errMsg.includes('API key not valid') || errMsg.includes('API key is missing')) {
+        setHasApiKey(false);
+      }
     } finally {
       setIsProcessing(false);
       setStreamingContent('');
@@ -327,6 +355,32 @@ export default function App() {
   };
 
   const t = THEMES[theme];
+
+  if (!hasApiKey) {
+    return (
+      <div className={`min-h-screen ${t.bg} flex items-center justify-center p-4`}>
+        <div className={`max-w-md w-full ${t.cardBg} rounded-2xl shadow-xl border ${t.cardBorder} p-8 text-center`}>
+          <div className={`w-16 h-16 ${t.primary} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg`}>
+            <Settings className="w-8 h-8 text-white" />
+          </div>
+          <h2 className={`text-2xl font-bold ${t.text} mb-4`}>Konfigurasi API Key</h2>
+          <p className={`${t.text} opacity-80 mb-8`}>
+            Aplikasi ini membutuhkan Gemini API Key untuk berfungsi. Silakan pilih atau masukkan API Key Anda dari Google Cloud Project yang memiliki akses ke Gemini API.
+          </p>
+          <button
+            onClick={handleSelectApiKey}
+            className={`w-full py-4 px-6 rounded-xl text-white font-medium transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-md flex items-center justify-center space-x-2 ${t.primary} ${t.primaryHover}`}
+          >
+            <Settings className="w-5 h-5" />
+            <span>Pilih API Key</span>
+          </button>
+          <p className={`mt-6 text-sm ${t.text} opacity-60`}>
+            Pelajari lebih lanjut tentang <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noopener noreferrer" className="underline">Billing & API Key Gemini</a>.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Render Setup Phase
   const renderSetup = () => (
